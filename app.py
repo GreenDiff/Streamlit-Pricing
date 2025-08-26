@@ -197,12 +197,12 @@ def show_pricing_calculator():
     st.header("💰 Customer Revenue Calculator")
     st.subheader("Calculate your potential revenue from charge point subscriptions:")
     
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns([2, 2, 3])
     
     with col1:
         st.subheader("💵 Pricing Structure")
         monthly_subscription_fee = st.number_input(
-            "Monthly subscription fee per charge point (DKK):",
+            "Monthly subscription (DKK/customer):",
             min_value=0.0,
             value=39.0,
             step=10.0,
@@ -210,29 +210,26 @@ def show_pricing_calculator():
         )
         
         one_time_setup_fee = st.number_input(
-            "One-time setup/installation fee (DKK):",
+            "Setup fee (DKK):",
             min_value=0.0,
             value=6000.0,
             step=100.0,
             help="Initial setup or installation fee charged to customers"
         )
         
-        st.markdown("---")
-        
-        # Electricity revenue inputs
-        st.subheader("⚡ Electricity Revenue")
+        st.subheader("**⚡ Electricity Revenue**")
         kwh_addon_price = st.number_input(
-            "kWh add-on price (DKK per kWh):",
+            "kWh add-on (DKK/kWh):",
             min_value=0.0,
             value=0.00,
-            step=0.10,
+            step=0.05,
             help="Your markup/profit per kWh of electricity sold to customers"
         )
         
         kwh_per_customer_monthly = st.number_input(
-            "Average kWh consumption per customer per month:",
+            "kWh/customer/month:",
             min_value=0.0,
-            value=0.0,
+            value=400.0,
             step=50.0,
             help="Expected monthly electricity consumption per active customer"
         )
@@ -240,30 +237,38 @@ def show_pricing_calculator():
     with col2:
         st.subheader("📈 Business Forecast")
         existing_customers = st.number_input(
-            "Current active customers:",
+            "Current customers:",
             min_value=0,
             value=0,
-            step=1,
+            step=50,
             help="Number of customers you already have with active subscriptions"
         )
         
         customers_month_1 = st.number_input(
-            "New customers in Month 1:",
+            "New customers Month 1:",
             min_value=0,
             value=20,
-            step=1
+            step=5
         )
         
         monthly_growth_rate = st.number_input(
-            "Monthly customer growth rate (%):",
+            "Growth rate (%):",
             min_value=0.0,
             value=5.0,
             step=1.0,
             help="Expected percentage growth in new customers each month"
         ) / 100
         
+        growth_cap = st.number_input(
+            "Growth cap (max new customers/month):",
+            min_value=0,
+            value=0,
+            step=50,
+            help="Maximum new customers per month (0 = no cap). Growth flattens when this limit is reached."
+        )
+        
         customer_retention_rate = st.number_input(
-            "Customer retention rate (%):",
+            "Retention rate (%):",
             min_value=0.0,
             max_value=100.0,
             value=100.0,
@@ -272,19 +277,16 @@ def show_pricing_calculator():
         ) / 100
         
         forecast_months = st.number_input(
-            "Forecast period (months):",
+            "Forecast (months):",
             min_value=1,
             max_value=60,
             value=24,
-            step=1
+            step=12
         )
         
-        st.markdown("---")
-        
-        # Charger type selection
-        st.subheader("🔌 Hardware Selection")
+        st.markdown("**🔌 Hardware**")
         charger_type = st.radio(
-            "Select charger type for new customers:",
+            "Charger type:",
             options=["NexBlue Edge", "Zaptec Go"],
             help="Choose which charger type you'll provide to new customers"
         )
@@ -295,9 +297,9 @@ def show_pricing_calculator():
         variable_cost_per_customer = standard_installation_cost + charger_cost
         
         # Display variable cost breakdown
-        st.write(f"🔧 **Standard installation**: DKK{standard_installation_cost}")
-        st.write(f"⚡ **{charger_type}**: DKK{charger_cost}")
-        st.metric("Variable Cost per Customer", f"DKK{variable_cost_per_customer}")
+        st.caption(f"🔧 Installation: DKK{standard_installation_cost:,}")
+        st.caption(f"⚡ {charger_type}: DKK{charger_cost:,}")
+        st.metric("Variable Cost/Customer", f"DKK{variable_cost_per_customer:,}")
     
     with col3:
         # Calculate revenue projections
@@ -315,8 +317,15 @@ def show_pricing_calculator():
         active_customers = existing_customers  # Start with existing customer base
         
         for month in range(1, forecast_months + 1):
-            # Calculate new customers for this month
-            new_cust = customers_month_1 * ((1 + monthly_growth_rate) ** (month - 1))
+            # Calculate new customers for this month with growth cap
+            uncapped_new_cust = customers_month_1 * ((1 + monthly_growth_rate) ** (month - 1))
+            
+            # Apply growth cap if set (0 means no cap)
+            if growth_cap > 0:
+                new_cust = min(uncapped_new_cust, growth_cap)
+            else:
+                new_cust = uncapped_new_cust
+                
             new_customers.append(int(new_cust))
             
             # Update active customers (existing/previous retained + new)
@@ -441,6 +450,17 @@ def show_pricing_calculator():
         
         if existing_customers > 0:
             st.caption(f"Starting with {existing_customers:,} existing customers")
+        
+        # Growth cap indicator
+        if growth_cap > 0:
+            # Check if growth cap was reached
+            max_new_customers = max(new_customers) if new_customers else 0
+            cap_reached_month = next((i+1 for i, val in enumerate(new_customers) if val >= growth_cap), None)
+            
+            if cap_reached_month:
+                st.info(f"📈 **Growth Cap Applied**: Reached {growth_cap:,} new customers/month limit in Month {cap_reached_month}")
+            else:
+                st.info(f"📈 **Growth Cap Set**: Maximum {growth_cap:,} new customers/month (not reached in forecast period)")
     
     # Revenue visualization
     st.markdown("---")    
@@ -515,7 +535,7 @@ def show_pricing_calculator():
         name='Monthly Subscription Revenue',
         x=revenue_df['Month'],
         y=revenue_df['Monthly Recurring Revenue'],
-        marker_color="#C7F0C0",
+        marker_color="#63BE63",
         offsetgroup=2,
         hovertemplate='<b>Month %{x}</b><br>' +
                      'Subscription Revenue: DKK%{y:,.0f}<br>' +
@@ -529,7 +549,7 @@ def show_pricing_calculator():
         name='Electricity Revenue',
         x=revenue_df['Month'],
         y=revenue_df['Electricity Revenue'],
-        marker_color='#63BE63',
+        marker_color='#C7F0C0',
         offsetgroup=2,
         base=revenue_df['Monthly Recurring Revenue'],
         hovertemplate='<b>Month %{x}</b><br>' +
@@ -641,18 +661,18 @@ def show_pricing_calculator():
     
     total_costs_monthly = [total_platform_costs_monthly[i] + variable_costs_monthly[i] for i in range(len(months))]
     
-    # Total Revenue Stack (Subscription + Electricity + One-time) - Group 1
+    # Total Revenue Stack (One-time + Electricity + Subscription) - Group 1
     fig_total.add_trace(go.Bar(
-        name='Monthly Subscription Revenue',
+        name='One-time Revenue',
         x=revenue_df['Month'],
-        y=revenue_df['Monthly Recurring Revenue'],
-        marker_color='#C7F0C0',
+        y=revenue_df['One-time Revenue'],
+        marker_color='#018001',
         offsetgroup=1,
         hovertemplate='<b>Month %{x}</b><br>' +
-                     'Subscription Revenue: DKK%{y:,.0f}<br>' +
-                     'Active Customers: %{customdata:,.0f}<br>' +
+                     'One-time Revenue: DKK%{y:,.0f}<br>' +
+                     'New Customers: %{customdata:,.0f}<br>' +
                      '<extra></extra>',
-        customdata=revenue_df['Total Active Customers']
+        customdata=revenue_df['New Customers']
     ))
     
     fig_total.add_trace(go.Bar(
@@ -661,7 +681,7 @@ def show_pricing_calculator():
         y=revenue_df['Electricity Revenue'],
         marker_color="#63BE63",
         offsetgroup=1,
-        base=revenue_df['Monthly Recurring Revenue'],
+        base=revenue_df['One-time Revenue'],
         hovertemplate='<b>Month %{x}</b><br>' +
                      'Electricity Revenue: DKK%{y:,.0f}<br>' +
                      'Active Customers: %{customdata:,.0f}<br>' +
@@ -669,34 +689,52 @@ def show_pricing_calculator():
         customdata=revenue_df['Total Active Customers']
     ))
     
-    # Calculate base for one-time revenue (subscription + electricity)
-    subscription_plus_electricity = [revenue_df['Monthly Recurring Revenue'].iloc[i] + revenue_df['Electricity Revenue'].iloc[i] for i in range(len(months))]
+    # Calculate base for subscription revenue (one-time + electricity)
+    onetime_plus_electricity = [revenue_df['One-time Revenue'].iloc[i] + revenue_df['Electricity Revenue'].iloc[i] for i in range(len(months))]
     
     fig_total.add_trace(go.Bar(
-        name='One-time Revenue',
+        name='Monthly Subscription Revenue',
         x=revenue_df['Month'],
-        y=revenue_df['One-time Revenue'],
-        marker_color='#018001',
+        y=revenue_df['Monthly Recurring Revenue'],
+        marker_color='#C7F0C0',
         offsetgroup=1,
-        base=subscription_plus_electricity,
+        base=onetime_plus_electricity,
         hovertemplate='<b>Month %{x}</b><br>' +
-                     'One-time Revenue: DKK%{y:,.0f}<br>' +
+                     'Subscription Revenue: DKK%{y:,.0f}<br>' +
+                     'Active Customers: %{customdata:,.0f}<br>' +
+                     '<extra></extra>',
+        customdata=revenue_df['Total Active Customers']
+    ))
+    
+    # Total Costs Stack (Variable + Base Platform + Overage) - Group 2
+    fig_total.add_trace(go.Bar(
+        name='Variable Costs',
+        x=revenue_df['Month'],
+        y=variable_costs_monthly,
+        marker_color='#FF8C00',
+        offsetgroup=2,
+        hovertemplate='<b>Month %{x}</b><br>' +
+                     'Variable Costs: DKK%{y:,.0f}<br>' +
                      'New Customers: %{customdata:,.0f}<br>' +
+                     'Total Cost'
                      '<extra></extra>',
         customdata=revenue_df['New Customers']
     ))
     
-    # Total Costs Stack (Base + Overage + Variable) - Group 2
     fig_total.add_trace(go.Bar(
         name='Base Platform Cost',
         x=revenue_df['Month'],
         y=fixed_platform_costs,
         marker_color='#1111D6',
         offsetgroup=2,
+        base=variable_costs_monthly,
         hovertemplate='<b>Month %{x}</b><br>' +
                      'Base Platform Cost: DKK%{y:,.0f}<br>' +
                      '<extra></extra>'
     ))
+    
+    # Variable costs + base platform costs for overage base
+    variable_plus_platform = [variable_costs_monthly[i] + fixed_platform_costs[i] for i in range(len(months))]
     
     fig_total.add_trace(go.Bar(
         name='Overage Fees',
@@ -704,26 +742,10 @@ def show_pricing_calculator():
         y=overage_costs,
         marker_color="#7C99F1",
         offsetgroup=2,
-        base=fixed_platform_costs,
+        base=variable_plus_platform,
         hovertemplate='<b>Month %{x}</b><br>' +
                      'Overage Fees: DKK%{y:,.0f}<br>' +
                      '<extra></extra>'
-    ))
-    
-    # Variable costs on top of platform costs
-    total_platform_and_overage = [fixed_platform_costs[i] + overage_costs[i] for i in range(len(months))]
-    fig_total.add_trace(go.Bar(
-        name='Variable Costs',
-        x=revenue_df['Month'],
-        y=variable_costs_monthly,
-        marker_color='#FF8C00',
-        offsetgroup=2,
-        base=total_platform_and_overage,
-        hovertemplate='<b>Month %{x}</b><br>' +
-                     'Variable Costs: DKK%{y:,.0f}<br>' +
-                     'New Customers: %{customdata:,.0f}<br>' +
-                     '<extra></extra>',
-        customdata=revenue_df['New Customers']
     ))
     
     # Add profit line
