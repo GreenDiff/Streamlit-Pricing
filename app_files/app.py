@@ -683,20 +683,6 @@ def show_pricing_calculator():
         customdata=revenue_df['New Customers']
     ))
     
-    fig_total.add_trace(go.Bar(
-        name='Electricity Revenue',
-        x=revenue_df['Month'],
-        y=revenue_df['Electricity Revenue'],
-        marker_color="#C7F0C0",
-        offsetgroup=1,
-        base=revenue_df['One-time Revenue'],
-        hovertemplate='<b>Month %{x}</b><br>' +
-                     'Electricity Revenue: %{y:,.0f} DKK<br>' +
-                     'Active Customers: %{customdata:,.0f}<br>' +
-                     '<extra></extra>',
-        customdata=revenue_df['Total Active Customers']
-    ))
-    
     # Calculate base for subscription revenue (one-time + electricity)
     onetime_plus_electricity = [revenue_df['One-time Revenue'].iloc[i] + revenue_df['Electricity Revenue'].iloc[i] for i in range(len(months))]
     
@@ -709,6 +695,20 @@ def show_pricing_calculator():
         base=onetime_plus_electricity,
         hovertemplate='<b>Month %{x}</b><br>' +
                      'Subscription Revenue: %{y:,.0f} DKK<br>' +
+                     'Active Customers: %{customdata:,.0f}<br>' +
+                     '<extra></extra>',
+        customdata=revenue_df['Total Active Customers']
+    ))
+
+    fig_total.add_trace(go.Bar(
+        name='Electricity Revenue',
+        x=revenue_df['Month'],
+        y=revenue_df['Electricity Revenue'],
+        marker_color="#C7F0C0",
+        offsetgroup=1,
+        base=revenue_df['One-time Revenue'],
+        hovertemplate='<b>Month %{x}</b><br>' +
+                     'Electricity Revenue: %{y:,.0f} DKK<br>' +
                      'Active Customers: %{customdata:,.0f}<br>' +
                      '<extra></extra>',
         customdata=revenue_df['Total Active Customers']
