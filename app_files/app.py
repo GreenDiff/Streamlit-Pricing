@@ -697,8 +697,8 @@ def show_pricing_calculator():
         customdata=revenue_df['Total Active Customers']
     ))
 
-    # Calculate base for subscription revenue (one-time + electricity)
-    onetime_plus_subscription = [revenue_df['One-time Revenue'].iloc[i] + revenue_df['Monthly Subscription Revenue'].iloc[i] for i in range(len(months))]
+    # Calculate base for electricity revenue (one-time + subscription)
+    onetime_plus_subscription = [revenue_df['One-time Revenue'].iloc[i] + revenue_df['Monthly Recurring Revenue'].iloc[i] for i in range(len(months))]
 
     fig_total.add_trace(go.Bar(
         name='Electricity Revenue',
