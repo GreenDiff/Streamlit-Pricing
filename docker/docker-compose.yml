@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   nordic-pricing:
-    build: .
+    build: 
+      context: ..  # Build from parent directory (project root)
+      dockerfile: docker/Dockerfile
     container_name: nordic-pricing-app
     ports:
       - "8501:8501"
@@ -13,7 +15,7 @@ services:
       - STREAMLIT_SERVER_ADDRESS=0.0.0.0
     volumes:
       # Optional: Mount logo if you want to update it without rebuilding
-      - ./logo.png:/app/logo.png:ro
+      - ../logo.png:/app/logo.png:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
       interval: 30s
