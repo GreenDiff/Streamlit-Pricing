@@ -15,7 +15,7 @@ services:
       - STREAMLIT_SERVER_ADDRESS=0.0.0.0
     volumes:
       # Optional: Mount logo if you want to update it without rebuilding
-      - ../logo.png:/app/logo.png:ro
+      - "../app files/logo.png:/app/logo.png:ro"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
       interval: 30s

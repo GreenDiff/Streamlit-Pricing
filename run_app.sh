@@ -18,5 +18,6 @@ echo ""
 echo "To stop the app, press Ctrl+C in this terminal"
 echo ""
 
-# Run the Streamlit app
+# Run the Streamlit app from the app files directory
+cd "app files"
 streamlit run app.py

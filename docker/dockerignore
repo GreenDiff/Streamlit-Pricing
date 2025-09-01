@@ -34,3 +34,8 @@ README.md
 
 # Logs
 *.log
+
+# Keep only essential files for Docker build
+*
+!"app files/"
+!docker/

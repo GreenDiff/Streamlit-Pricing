@@ -8,13 +8,13 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first (for better Docker layer caching)
-COPY requirements.txt .
+COPY "app files/requirements.txt" ./
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy app files
-COPY . .
+# Copy app files from the new directory
+COPY "app files/" ./
 
 # Expose port
 EXPOSE 8501

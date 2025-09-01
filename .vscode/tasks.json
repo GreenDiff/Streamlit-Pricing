@@ -11,7 +11,10 @@
 			],
 			"group": "build",
 			"isBackground": true,
-			"problemMatcher": []
+			"problemMatcher": [],
+			"options": {
+				"cwd": "${workspaceFolder}/app files"
+			}
 		}
 	]
 }
