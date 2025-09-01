@@ -13,14 +13,12 @@ def main():
     )
 
     # Header with logo
-    col1, col2 = st.columns([4, 4])
-    with col1:
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col2:
         try:
             st.image("logo.png", width=1000)  # Adjust width as needed
         except:
             st.write("🏢")  # Fallback if logo not found
-    with col2:
-        st.title("")
     
     st.markdown("---")
     
