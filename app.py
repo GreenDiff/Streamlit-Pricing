@@ -41,7 +41,7 @@ def show_pricing_configurator():
     col_package, col_modules = st.columns([1, 2])
     
     with col_package:
-        st.subheader("📦 Select Package Tier")
+        st.subheader("Select Package Tier")
         
         # Package selection
         package_options = list(PACKAGE_SIZES.keys())
@@ -59,19 +59,19 @@ def show_pricing_configurator():
         package_info = PACKAGE_SIZES[selected_package]
         
         st.metric("Order Limit", f"{package_info['order_limit']} orders/month")
-        st.metric("Overage Fee", f"DKK{package_info['overage_fee']}/order")
+        st.metric("Overage Fee", f"{package_info['overage_fee']} DKK/order")
         
         # Show total monthly cost preview
         if st.session_state.selected_modules:
             total_module_cost = sum(MODULES[module]['prices'][selected_package] 
                                   for module in st.session_state.selected_modules)
-            st.metric("**Monthly Module Cost**", f"**DKK{total_module_cost:,}**")
+            st.metric("**Monthly Module Cost**", f"**{total_module_cost:,} DKK**")
             st.caption(f"Based on {len(st.session_state.selected_modules)} selected modules")
         else:
             st.info("Select modules to see total cost")
     
     with col_modules:
-        st.subheader("🔧 Select Modules")
+        st.subheader("Select Modules")
         
         # Create a grid for modules
         col1, col2 = st.columns(2)
@@ -108,9 +108,9 @@ def show_pricing_configurator():
                             selected_modules.remove(module_name)
                     
                     if is_selected:
-                        st.success(f" DKK{module_price:,}/month")
+                        st.success(f" {module_price:,} DKK/month")
                     else:
-                        st.write(f" DKK{module_price:,}/month")
+                        st.write(f" {module_price:,} DKK/month")
                     
                     st.caption(module_info['description'])
                     st.markdown("---")
@@ -145,9 +145,9 @@ def show_pricing_configurator():
                             selected_modules.remove(module_name)
                     
                     if is_selected:
-                        st.success(f" DKK{module_price:,}/month")
+                        st.success(f" {module_price:,} DKK/month")
                     else:
-                        st.write(f" DKK{module_price:,}/month")
+                        st.write(f" {module_price:,} DKK/month")
                     
                     st.caption(module_info['description'])
                     st.markdown("---")
@@ -168,7 +168,7 @@ def show_pricing_calculator():
     )
     
     # Show configuration summary
-    with st.expander("📋 Configuration Summary", expanded=True):
+    with st.expander("Configuration Summary", expanded=True):
         col1, col2 = st.columns(2)
         
         with col1:
@@ -176,23 +176,23 @@ def show_pricing_calculator():
             for module in st.session_state.selected_modules:
                 module_info = MODULES[module]
                 module_price = module_info['prices'][st.session_state.selected_package]
-                st.write(f"• **{module}**: DKK{module_price:,}/month")
-            
+                st.write(f"• **{module}**: {module_price:,} DKK/month")
+
             # Show total module cost
             total_module_cost = sum(MODULES[module]['prices'][st.session_state.selected_package] 
                                   for module in st.session_state.selected_modules)
-            st.write(f"**Total Module Cost: DKK{total_module_cost:,}/month**")
+            st.write(f"**Total Module Cost: {total_module_cost:,} DKK/month**")
         
         with col2:
             st.subheader("Package Details:")
             package_info = PACKAGE_SIZES[st.session_state.selected_package]
             st.write(f"**{st.session_state.selected_package}**")
             st.write(f"• Order limit: {package_info['order_limit']} orders")
-            st.write(f"• Overage fee: DKK{package_info['overage_fee']}/order")
-        
+            st.write(f"• Overage fee: {package_info['overage_fee']} DKK/order")
+
     # Customer Revenue Calculator
     st.markdown("---")
-    st.header("💰 Customer Revenue Calculator")
+    st.header("Customer Revenue Calculator")
     st.subheader("Calculate your potential revenue from charge point subscriptions:")
     
     col1, col2, col3 = st.columns([2, 2, 3])
@@ -208,7 +208,7 @@ def show_pricing_calculator():
         )
         
         one_time_setup_fee = st.number_input(
-            "Setup fee (DKK):",
+            "Standard package fee (DKK):",
             min_value=0.0,
             value=6000.0,
             step=100.0,
@@ -344,9 +344,7 @@ def show_pricing_calculator():
         
         # Display key metrics
         total_revenue_full_period = sum(total_monthly_revenue)  # Fix: calculate total for full period
-        final_mrr = monthly_recurring_revenue[-1]
         average_monthly_revenue = total_revenue_full_period / forecast_months  # Calculate average
-        total_customers_end = total_active_customers[-1]
         
         # Calculate comprehensive totals for the forecast period
         total_recurring_revenue = sum(monthly_recurring_revenue)
@@ -382,26 +380,26 @@ def show_pricing_calculator():
         # Revenue metrics
         col_rev1, col_rev2 = st.columns(2)
         with col_rev1:
-            st.metric("Total Revenue", f"DKK{total_revenue_full_period:,.0f}")
+            st.metric("Total Revenue", f"{total_revenue_full_period:,.0f} DKK")
             st.caption(f"Over {forecast_months} months")
         with col_rev2:
-            st.metric("Total Recurring Revenue", f"DKK{total_recurring_revenue + total_electricity_revenue:,.0f}")
+            st.metric("Total Recurring Revenue", f"{total_recurring_revenue + total_electricity_revenue:,.0f} DKK")
             st.caption("Subscription + Electricity accumulated")
         
         col_rev3, col_rev4 = st.columns(2)
         with col_rev3:
-            st.metric("Total Subscription Revenue", f"DKK{total_recurring_revenue:,.0f}")
+            st.metric("Total Subscription Revenue", f"{total_recurring_revenue:,.0f} DKK")
             st.caption("Monthly subscriptions accumulated over period")
         with col_rev4:
-            st.metric("Total Electricity Revenue", f"DKK{total_electricity_revenue:,.0f}")
+            st.metric("Total Electricity Revenue", f"{total_electricity_revenue:,.0f} DKK")
             st.caption("Electricity sales accumulated over period")
         
         col_rev5, col_rev6 = st.columns(2)
         with col_rev5:
-            st.metric("Total One-time Revenue", f"DKK{total_one_time_revenue:,.0f}")
+            st.metric("Total One-time Revenue", f"{total_one_time_revenue:,.0f} DKK")
             st.caption(f"From {total_new_customers:,.0f} new customers")
         with col_rev6:
-            st.metric("Average Monthly Revenue", f"DKK{average_monthly_revenue:,.0f}")
+            st.metric("Average Monthly Revenue", f"{average_monthly_revenue:,.0f} DKK")
             st.caption("Mean monthly revenue over period")
         
         st.markdown("---")
@@ -409,20 +407,20 @@ def show_pricing_calculator():
         # Cost metrics
         col_cost1, col_cost2 = st.columns(2)
         with col_cost1:
-            st.metric("Total Cost", f"DKK{total_cost_period:,.0f}")
+            st.metric("Total Cost", f"{total_cost_period:,.0f} DKK")
             st.caption(f"Over {forecast_months} months")
         with col_cost2:
-            st.metric("Total Platform Cost", f"DKK{total_platform_cost_period:,.0f}")
+            st.metric("Total Platform Cost", f"{total_platform_cost_period:,.0f} DKK")
             st.caption("Base + overage fees combined")
         
         col_cost3, col_cost4 = st.columns(2)
         with col_cost3:
-            st.metric("Total Variable Cost", f"DKK{total_variable_cost_period:,.0f}")
+            st.metric("Total Variable Cost", f"{total_variable_cost_period:,.0f} DKK")
             st.caption("Installation + charger costs")
         with col_cost4:
             # Calculate average platform cost over the period
             average_platform_cost = total_platform_cost_period / forecast_months
-            st.metric("Average Platform Cost", f"DKK{average_platform_cost:,.0f}")
+            st.metric("Average Platform Cost", f"{average_platform_cost:,.0f} DKK")
             st.caption("Mean monthly platform cost")
         
         st.markdown("---")
@@ -434,9 +432,9 @@ def show_pricing_calculator():
         col_profit1, col_profit2 = st.columns(2)
         with col_profit1:
             if total_profit_period >= 0:
-                st.metric("Total Profit", f"DKK{total_profit_period:,.0f}", delta="Profitable")
+                st.metric("Total Profit", f"{total_profit_period:,.0f} DKK", delta="Profitable")
             else:
-                st.metric("Total Loss", f"DKK{abs(total_profit_period):,.0f}", delta="Loss")
+                st.metric("Total Loss", f"{abs(total_profit_period):,.0f} DKK", delta="Loss")
         with col_profit2:
             st.metric("Profit Margin", f"{profit_margin:.1f}%")
             if profit_margin > 10:
@@ -667,7 +665,7 @@ def show_pricing_calculator():
         marker_color='#018001',
         offsetgroup=1,
         hovertemplate='<b>Month %{x}</b><br>' +
-                     'One-time Revenue: DKK%{y:,.0f}<br>' +
+                     'One-time Revenue: %{y:,.0f} DKK<br>' +
                      'New Customers: %{customdata:,.0f}<br>' +
                      '<extra></extra>',
         customdata=revenue_df['New Customers']
@@ -681,7 +679,7 @@ def show_pricing_calculator():
         offsetgroup=1,
         base=revenue_df['One-time Revenue'],
         hovertemplate='<b>Month %{x}</b><br>' +
-                     'Electricity Revenue: DKK%{y:,.0f}<br>' +
+                     'Electricity Revenue: %{y:,.0f} DKK<br>' +
                      'Active Customers: %{customdata:,.0f}<br>' +
                      '<extra></extra>',
         customdata=revenue_df['Total Active Customers']
@@ -698,7 +696,7 @@ def show_pricing_calculator():
         offsetgroup=1,
         base=onetime_plus_electricity,
         hovertemplate='<b>Month %{x}</b><br>' +
-                     'Subscription Revenue: DKK%{y:,.0f}<br>' +
+                     'Subscription Revenue: %{y:,.0f} DKK<br>' +
                      'Active Customers: %{customdata:,.0f}<br>' +
                      '<extra></extra>',
         customdata=revenue_df['Total Active Customers']
@@ -712,7 +710,7 @@ def show_pricing_calculator():
         marker_color='#FF8C00',
         offsetgroup=2,
         hovertemplate='<b>Month %{x}</b><br>' +
-                     'Variable Costs: DKK%{y:,.0f}<br>' +
+                     'Variable Costs: %{y:,.0f} DKK<br>' +
                      'New Customers: %{customdata:,.0f}<br>' +
                      'Total Cost'
                      '<extra></extra>',
@@ -727,7 +725,7 @@ def show_pricing_calculator():
         offsetgroup=2,
         base=variable_costs_monthly,
         hovertemplate='<b>Month %{x}</b><br>' +
-                     'Base Platform Cost: DKK%{y:,.0f}<br>' +
+                     'Base Platform Cost: %{y:,.0f} DKK<br>' +
                      '<extra></extra>'
     ))
     
@@ -742,7 +740,7 @@ def show_pricing_calculator():
         offsetgroup=2,
         base=variable_plus_platform,
         hovertemplate='<b>Month %{x}</b><br>' +
-                     'Overage Fees: DKK%{y:,.0f}<br>' +
+                     'Overage Fees: %{y:,.0f} DKK<br>' +
                      '<extra></extra>'
     ))
     
@@ -757,7 +755,7 @@ def show_pricing_calculator():
         line=dict(width=3),
         yaxis='y2',
         hovertemplate='<b>Month %{x}</b><br>' +
-                     'Monthly Profit: DKK%{y:,.0f}<br>' +
+                     'Monthly Profit: %{y:,.0f} DKK<br>' +
                      '<extra></extra>'
     ))
     
