@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  nordic-pricing:
+    build: .
+    container_name: nordic-pricing-app
+    ports:
+      - "8501:8501"
+    restart: unless-stopped
+    environment:
+      - STREAMLIT_SERVER_HEADLESS=true
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+    volumes:
+      # Optional: Mount logo if you want to update it without rebuilding
+      - ./logo.png:/app/logo.png:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
