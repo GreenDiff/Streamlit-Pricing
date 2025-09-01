@@ -16,7 +16,7 @@ def main():
     col1, col2 = st.columns([1, 4])
     with col1:
         try:
-            st.image("logo.png", width=5000)  # Adjust width as needed
+            st.image("logo.png", width=50000)  # Adjust width as needed
         except:
             st.write("🏢")  # Fallback if logo not found
     with col2:
