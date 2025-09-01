@@ -8,17 +8,29 @@ from pricing_calculator import PricingCalculator
 def main():
     st.set_page_config(
         page_title="Nordic Charge",
-        page_icon="logo.png",  # Replace with your logo file path
+        page_icon="🏢",  # Use emoji as more reliable fallback
         layout="wide"
     )
 
     # Header with logo
     col1, col2, col3 = st.columns([1, 1, 1])
     with col2:
-        try:
-            st.image("logo.png", width=1000)  # Adjust width as needed
-        except:
-            st.write("🏢")  # Fallback if logo not found
+        import os
+        logo_path = "logo.png"
+        if os.path.exists(logo_path):
+            st.image(logo_path, width=1000)
+        else:
+            # Try alternative paths
+            alt_paths = ["./logo.png", "app_files/logo.png", "../logo.png"]
+            logo_found = False
+            for path in alt_paths:
+                if os.path.exists(path):
+                    st.image(path, width=1000)
+                    logo_found = True
+                    break
+            
+            if not logo_found:
+                st.write("🏢 Nordic Charge")  # Fallback with company name
     
     st.markdown("---")
     
