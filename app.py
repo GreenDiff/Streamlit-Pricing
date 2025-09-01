@@ -13,7 +13,7 @@ def main():
     )
 
     # Header with logo
-    col1, col2 = st.columns([2, 4])
+    col1, col2 = st.columns([4, 4])
     with col1:
         try:
             st.image("logo.png", width=1000)  # Adjust width as needed
