@@ -687,7 +687,7 @@ def show_pricing_calculator():
         name='Electricity Revenue',
         x=revenue_df['Month'],
         y=revenue_df['Electricity Revenue'],
-        marker_color="#63BE63",
+        marker_color="#C7F0C0",
         offsetgroup=1,
         base=revenue_df['One-time Revenue'],
         hovertemplate='<b>Month %{x}</b><br>' +
@@ -704,7 +704,7 @@ def show_pricing_calculator():
         name='Monthly Subscription Revenue',
         x=revenue_df['Month'],
         y=revenue_df['Monthly Recurring Revenue'],
-        marker_color='#C7F0C0',
+        marker_color='#63BE63',
         offsetgroup=1,
         base=onetime_plus_electricity,
         hovertemplate='<b>Month %{x}</b><br>' +
